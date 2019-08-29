@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!--
+
+1 - organize data with vue
+2 - auto update page after add new data
+
+ -->
+<html>
+    <head>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" >
+        <script   src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>      
+        <script src="https://www.gstatic.com/firebasejs/6.4.2/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/6.4.2/firebase-firestore.js"></script>
+
+        <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+                apiKey: "",
+                authDomain: "",
+                databaseURL: "",
+                projectId: "",
+                storageBucket: "",
+                messagingSenderId: "",
+                appId: ""
+            };
+            // Initialize Firebase
+            var app = firebase.initializeApp(firebaseConfig);
+            const databaseRef = firebase.firestore();
+            
+            databaseRef.collection('users').get().then((snapshot)=> {
+                snapshot.docs.forEach((doc)=>{
+                example.users.push(
+                   { no: doc.data().no , name: doc.data().name , age: doc.data().age ,  position: doc.data().position , 
+                     salary: doc.data().salary , date: doc.data().date },); 
+                })
+            });
+
+        </script>
+
+        </script>
+
+        <style>
+            .divTable{
+                margin: 50px auto 0px auto;
+                width: 100%;
+                padding: 20px;
+                display: table;
+            }
+            .divBody{
+                display: table-row-group;
+            }
+            .divRow{
+                display: table-row;
+            }
+            .divTabelHeading{
+                font-weight: bold;
+                display: table-header-group;
+                background-color: #eee;
+            }
+            .divCell , .divTabelHeading{
+                border: 1px solid #999999;
+                display: table-cell;
+                padding: 3px 10px;
+            }
+            input{
+                margin: 10px;
+            }
+            .center{
+                align-items: center;
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1 style="display: block; text-align:center;padding:20px;">Users Table</h1> <h1 style="display: inline;" id="title"></h1>
+        </header>
+
+
+
+     <!--  add new user  -->
+     <div   class="center" >
+            <div style="padding:20px; display:flex;"  id="table2">
+                    <input v-model="form.name" class="form-control" type="text" placeholder="Enter name" id="name">
+                    <input v-model="form.age" class="form-control" type="text" placeholder="Enter age" id="age">
+                    <input v-model="form.position" class="form-control" type="text" placeholder="Enter position" id="position">
+                    <input v-model="form.salary" class="form-control" type="text" placeholder="Enter salary" id="salary">
+                    <input v-model="form['date']" class="form-control" type="date" placeholder="Enter start date" id="date">
+                    <input class="btn btn-primary"  @click="addUser" type="button"  value="Add new user">
+            </div> 
+       </div>
+
+
+
+        <!--  search the  user  -->
+        <div   class="center">
+            <div style="padding:20px; display:flex;">
+                <input class="form-control" style="float:left;" type="text" placeholder="Search by name" id="name">
+                <input class="btn btn-primary" style="display:inline;" type="button"  value="Search">
+                <input class="form-control" style="float:left;" type="text" placeholder="Search by age" id="name">
+                <input class="btn btn-primary" style="display:inline;" type="button"  value="Search">
+                <input class="form-control" style="float:left;" type="text" placeholder="Search by position" id="name">
+                <input class="btn btn-primary" style="display:inline;" type="button"  value="Search">
+                 <input class="form-control" style="float:left;" type="text" placeholder="Search by salary" id="name">
+                <input class="btn btn-primary" style="display:inline;" type="button"  value="Search">
+            </div> 
+       </div>
+
+
+
+       <!--  the user tables   -->
+       <div class="divTable">
+           <div class="divBody" id="table1" >
+               <div class="divRow">
+                   <div class="divTabelHeading">No</div>
+                   <div class="divTabelHeading">Name</div>
+                   <div class="divTabelHeading">Age</div>
+                   <div class="divTabelHeading">Position</div>
+                   <div class="divTabelHeading">Salary</div>
+                   <div class="divTabelHeading">Start Date</div>
+               </div>
+              
+               <div class="divRow"  v-for="user in users">
+                   <div class="divCell" >{{user.no}}</div>
+                   <div class="divCell" >{{user.name}}</div>
+                   <div class="divCell" >{{user.age}}</div>
+                   <div class="divCell" >{{user.position}}</div>
+                   <div class="divCell" >{{user.salary}}</div>
+                   <div class="divCell" >{{user.date}}</div>
+               </div>           
+           </div>
+       </div>
+
+
+    </body>
+
+    <script>
+       
+        var example = new Vue({
+            el: '#table1',
+            data :{
+                users: []
+              //  users:[ { no: 1, name: 'ahmed1' , age: 20 , position: "IT1" , salary : 5000 , date : new Date().toDateString() }, ]
+            },
+        });
+
+
+
+        new Vue({
+        el: '#table2',
+        data: {
+            form: {} // create an object to hold all form values
+        },
+        methods: {
+            addUser() {
+                /*
+                example.users.push(
+                  { no: example.users.length + 1 , name: this.form.name , age: this.form.age ,  position: this.form.position , 
+                    salary: this.form.salary , date: new Date(this.form.date).toDateString() },); 
+                    */
+
+                databaseRef.collection('users').get().then((snapshot)=> {
+                    if( snapshot.docs.length > 0 ){
+                            databaseRef.collection('users').add({ 
+                            no :  snapshot.docs.length + 1,    // parseInt(example.users.length + 1) , 
+                            name: this.form.name,
+                            age :  parseInt(this.form.age),
+                            position : this.form.position,
+                            salary : parseInt(this.form.salary),
+                            date :  new Date().toDateString()
+                        });  
+                    }
+                });
+            }
+        }});
+     
+    </script>
+</html>
